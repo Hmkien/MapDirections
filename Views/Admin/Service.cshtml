@@ -1,0 +1,55 @@
+@model IEnumerable<MapDirections.Models.MallService>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container">
+    <p>
+        <a class="btn btn-primary" asp-action="CreateService">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Mall)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Event)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Mall.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Event)
+                    </td>
+                    <td>
+                        <a asp-action="EditService" asp-route-id="@item.FacilityId"> <i class="fas fa-edit"></i></a>
+                        <a asp-action="DeleteService" asp-route-id="@item.FacilityId"><i
+                                class="text-danger fas fa-trash"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

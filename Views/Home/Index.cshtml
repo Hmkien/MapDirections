@@ -1,0 +1,411 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using MapDirections.Models
+@model IEnumerable<MapDirections.Models.Mall>
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web GIS - Định vị và Địa điểm</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.css">
+    <link rel="stylesheet" href="~/css/Style.css">
+    <style></style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div id="search-bar">
+        <input type="text" id="search-input" placeholder="Tìm kiếm TTTM...">
+        <button id="search-button">Tìm kiếm</button>
+    </div>
+    <div class="user_area">
+        @if (SignInManager.IsSignedIn(User))
+        {
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout"
+                asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                <button type="submit" style="background: transparent; border: none; padding: 0; cursor: pointer;">
+                    <img src="~/image/avartar.jpg" alt="Avatar" style="width:4em; height: 4em; border-radius: 50%;" />
+                </button>
+            </form>
+        }
+
+
+    </div>
+    <div id="info-box" style="display: none;">
+        <h3>Thông tin TTTM</h3>
+        <div id="info-content"></div>
+        <button id="navigate-button" style="display: none;">Chỉ đường</button>
+    </div>
+    <div id="info-box" style="display: none;">
+        <button id="close-info"
+            style="position: absolute; top: 5px; right: 10px; background-color: transparent; border: none; font-size: 18px; cursor: pointer;">&times;</button>
+        <h3>Thông tin TTTM</h3>
+        <div id="info-content"></div>
+        <button id="navigate-button" style="display: none;">Chỉ đường</button>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+    <script>
+        // Khởi tạo bản đồ Leaflet
+        const map = L.map('map').setView([21.028511, 105.804817], 16); // Tọa độ mặc định (Hà Nội)
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        // Thêm layer bản đồ từ OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Biểu tượng marker tùy chỉnh
+        // Thêm marker tùy chỉnh
+        const userIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30]
+        });
+
+        const mallIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/888/888064.png',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30]
+        });
+
+        // Định vị người dùng
+        function locateUser() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+
+                        // Di chuyển bản đồ đến vị trí người dùng
+                        map.setView([latitude, longitude], 18);
+
+
+
+                    }
+                );
+            } else {
+                alert("Trình duyệt không hỗ trợ định vị GPS.");
+            }
+        }
+
+        // Danh sách các địa điểm
+        const locations = [
+        @foreach (var location in Model)
+        {
+            <text>
+                    {
+                        name: "@location.Name",
+                    coords: [@location.Latitude, @location.Longitude],
+                    address: "@location.Address",
+                    description: "@location.Description",
+                    openingHours: "@location.OpeningHours",
+                    phone: "@location.Phone",
+                    website: "@location.Website",
+                    service: "@string.Join(", ", location.MallServices.Select(s => s.Name))"
+                                                                                                                },
+            </text>
+        }
+];
+
+        console.log(locations)
+
+        21.0290, 105.7917
+        // Thêm các marker địa điểm lên bản đồ
+        function addLocations() {
+            locations.forEach(location => {
+                L.marker(location.coords)
+                    .addTo(map)
+                    .bindPopup(`
+                        <b>${location.name}</b><br>
+                        <strong>Địa chỉ:</strong> ${location.address}<br>
+                        <strong>Mô tả:</strong> ${location.description}<br>
+                        <strong>Thời gian mở cửa:</strong> ${location.openingHours}<br>
+                        <strong>Số điện thoại:</strong> ${location.phone}<br>
+                        <strong>Website:</strong> ${location.website}<br>
+                        <button onclick="showInfo('${location.name}', '${location.address}',  '${location.openingHours}', '${location.phone}', '${location.website})">Xem chi tiết</button>
+                    `);
+            });
+
+        }
+        // Hàm hiển thị bảng thông tin trong popup
+        function showInfo(name, address, description) {
+            const infoHTML = `
+                Thông tin chi tiết
+                        Tên Trung tâm thương mại
+                        ${name}
+
+                       Địa chỉ
+                        ${address}
+
+
+                        Mô tả
+                        ${description}
+
+                        Thời gian mở cửa 
+                        ${openingHours}
+
+                        Số điện thoại liên hệ
+                        ${phone}
+
+                        Đường dẫn đến trang web chính thức của TTTM
+                         ${website}
+                </table>
+            `;
+
+            alert(infoHTML); // Hiển thị bảng thông tin trong alert (có thể thay bằng modal hoặc div riêng)
+
+        }
+
+        // Gọi các hàm khởi tạo
+        locateUser(); // Định vị người dùng
+        addLocations(); // Thêm địa điểm
+
+        // Hàm tìm kiếm TTTM theo tên
+        function searchMallByName(name) {
+            return locations.find(location => location.name.toLowerCase().includes(name.toLowerCase()));
+        }
+
+        // Sự kiện khi nhấn nút tìm kiếm
+        document.getElementById('search-button').addEventListener('click', () => {
+            const searchInput = document.getElementById('search-input').value.trim();
+            const infoBox = document.getElementById('info-box');
+            const infoContent = document.getElementById('info-content');
+            const navigateButton = document.getElementById('navigate-button');
+
+            if (!searchInput) {
+                alert('Vui lòng nhập tên TTTM để tìm kiếm!');
+                return;
+            }
+
+            const mall = searchMallByName(searchInput);
+
+            if (mall) {
+                // Hiển thị thông tin TTTM
+                infoBox.style.display = 'block';
+                infoContent.innerHTML = `
+            <button id="close-button" style="float: right;margin-top:-4.5em">Đóng</button>
+            <strong>Tên:</strong> ${mall.name}<br>
+            <strong>Địa chỉ:</strong> ${mall.address}<br>
+            <strong>Mô tả:</strong> ${mall.description}<br>
+            <strong>Thời gian mở cửa:</strong> ${mall.openingHours}<br>
+            <strong>Số điện thoại liên hệ.:</strong> ${mall.phone}<br>
+            <strong>Đường dẫn đến trang web chính thức của TTTM:</strong> ${mall.website}<br>
+        `;
+
+                // Di chuyển bản đồ đến vị trí TTTM
+                map.setView(mall.coords, 16);
+                L.popup()
+                    .setLatLng(mall.coords)
+                    .setContent(`<b>${mall.name}</b><br>${mall.address}`)
+                    .openOn(map);
+
+                // Hiển thị nút chỉ đường
+                navigateButton.style.display = 'block';
+
+                // Thêm sự kiện cho nút "Chỉ đường"
+                navigateButton.onclick = () => {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                const userCoords = [position.coords.latitude, position.coords.longitude];
+                                drawRoute(userCoords, mall.coords);
+                            },
+                            (error) => {
+                                alert('Không thể định vị vị trí hiện tại để chỉ đường.');
+                            }
+                        );
+                    } else {
+                        alert('Trình duyệt không hỗ trợ định vị GPS.');
+                    }
+                };
+
+                document.getElementById('close-button').addEventListener('click', () => {
+                    infoBox.style.display = 'none';
+                });
+            } else {
+                alert('Không tìm thấy TTTM phù hợp với từ khóa tìm kiếm.');
+            }
+        });
+    </script>
+    <script>
+        // Hàm tính khoảng cách giữa hai tọa độ theo công thức Haversine
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Bán kính Trái đất (km)
+            const dLat = ((lat2 - lat1) * Math.PI) / 180;
+            const dLon = ((lon2 - lon1) * Math.PI) / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos((lat1 * Math.PI) / 180) *
+                Math.cos((lat2 * Math.PI) / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Khoảng cách (km)
+        }
+
+        // Tìm TTTM gần nhất
+        function findNearestMall(userLat, userLon) {
+            let nearestMall = null;
+            let minDistance = Infinity;
+
+            locations.forEach(location => {
+                const distance = calculateDistance(userLat, userLon, location.coords[0], location.coords[1]);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestMall = { ...location, distance };
+                }
+            });
+
+            return nearestMall;
+        }
+
+        // Vẽ đường chỉ dẫn đến TTTM
+        function drawRoute(userCoords, mallCoords) {
+            L.Routing.control({
+                waypoints: [
+                    L.latLng(userCoords[0], userCoords[1]),
+                    L.latLng(mallCoords[0], mallCoords[1])
+                ],
+                routeWhileDragging: true,
+            }).addTo(map);
+        }
+        function decodeHtml(html) {
+            const textArea = document.createElement('textarea');
+            textArea.innerHTML = html;
+            return textArea.value;
+        }
+        // Định vị người dùng và tìm TTTM gần nhất
+        function locateUser() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+
+                        // Di chuyển bản đồ đến vị trí người dùng
+                        map.setView([latitude, longitude], 18);
+
+                        // Thêm marker tại vị trí người dùng
+                        L.marker([latitude, longitude], { icon: userIcon })
+                            .addTo(map)
+                            .bindPopup('Bạn đang ở đây!')
+                            .openPopup();
+
+                        // Tìm TTTM gần nhất
+                        const nearestMall = findNearestMall(latitude, longitude);
+
+                        if (nearestMall) {
+
+
+                            // Ví dụ:
+                            const nearestMallName = decodeHtml(nearestMall.name);
+                            alert(`Trung tâm thương mại gần nhất là: ${nearestMallName} (${nearestMall.distance.toFixed(2)} km)`);
+
+
+                            // Chỉ đường đến TTTM gần nhất
+                            drawRoute([latitude, longitude], nearestMall.coords);
+                        }
+                    },
+                    (error) => {
+                        console.error("Lỗi định vị:", error);
+                        alert("Không thể định vị. Sử dụng vị trí mặc định.");
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                alert("Trình duyệt không hỗ trợ định vị GPS.");
+            }
+        }
+
+        // Khi người dùng chọn một TTTM từ danh sách
+        function showInfo(name, address, description, openingHours, phone, website, coords) {
+            alert(`
+            Tên: ${name}
+            Địa chỉ: ${address}
+            Mô tả: ${description}
+            Thời gian mở cửa: ${openingHours}
+            Số điện thoại liên hệ: ${phone}
+            Đường dẫn đến trang web chính thức của TTTM: ${website}
+        `);
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userCoords = [position.coords.latitude, position.coords.longitude];
+                        drawRoute(userCoords, coords);
+                    },
+                    (error) => {
+                        alert("Không thể lấy vị trí hiện tại để chỉ đường.");
+                    }
+                );
+            } else {
+                alert("Trình duyệt không hỗ trợ định vị GPS.");
+            }
+        }
+        let routingControl = null; // Biến lưu trữ tuyến chỉ đường
+
+        // Đóng hộp thông tin và xóa tuyến đường
+        document.getElementById('close-info').addEventListener('click', () => {
+            document.getElementById('info-box').style.display = 'none';
+
+            // Xóa tuyến đường nếu có
+            if (routingControl) {
+                map.removeControl(routingControl);
+                routingControl = null;
+            }
+        });
+
+        // Cập nhật hàm vẽ đường với việc lưu trữ tuyến chỉ đường
+        function drawRoute(userCoords, mallCoords) {
+            if (routingControl) {
+                map.removeControl(routingControl); // Xóa tuyến cũ nếu có
+            }
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(userCoords[0], userCoords[1]),
+                    L.latLng(mallCoords[0], mallCoords[1])
+                ],
+
+                routeWhileDragging: true,
+            }).addTo(map);
+        }
+
+        // Cập nhật hàm thêm marker với tính năng chỉ đường
+        function addLocations() {
+            locations.forEach(location => {
+                L.marker(location.coords, { icon: mallIcon })
+                    .addTo(map)
+                    .bindPopup(`
+                    <b>${location.name}</b><br>
+                    <strong>Địa chỉ:</strong> ${location.address}<br>
+                    <strong>Mô tả:</strong> ${location.description}<br>
+                    <strong>Thời gian mở cửa:</strong> ${location.openingHours}<br>
+                    <strong>Số điện thoại liên hệ:</strong> ${location.phone}<br>
+                    <strong>Đường dẫn đến trang web chính thức của TTTM:</strong> ${location.website}<br>
+                    <button onclick="showInfo('${location.name}', '${location.address}', '${location.description}', '${location.openingHours}', '${location.phone}', '${location.website}', [${location.coords[0]}, ${location.coords[1]}])">Xem chi tiết và chỉ đường</button>
+                `);
+            });
+        }
+
+        // Gọi các hàm khởi tạo
+        locateUser(); // Định vị người dùng và tìm TTTM gần nhất
+        addLocations(); // Thêm địa điểm
+    </script>
+</body>
+
+</html>

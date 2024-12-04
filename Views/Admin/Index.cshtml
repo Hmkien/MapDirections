@@ -1,0 +1,86 @@
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IEnumerable<MapDirections.Models.Mall>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<div class="container-fluid">
+    <p>
+        <a class=" btn btn-primary" asp-action="CreateMall">Tạo mới</a>
+        <a class=" btn btn-danger" asp-action="DeleteAll">Xóa tất cả bản ghi</a>
+    </p>
+    <table class="table border">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Address)
+                </th>
+
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Phone)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Website)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Latitude)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Longitude)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+
+                <tr>
+                    <td>
+                        <a class="text-dark text-decoration-none" asp-action="DetailMall" asp-route-id="@item.MallId">
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Address)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Phone)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Website)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Latitude)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Longitude)
+                    </td>
+                    <td>
+                        <a asp-action="EditMall" asp-route-id="@item.MallId"> <i class="fas fa-edit"></i></a>
+                        <a asp-action="DeleteMall" asp-route-id="@item.MallId"> <i class="text-danger fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+
+</div>
+<div class="align-items-center d-flex justify-content-center">
+    @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new
+        {
+            page = page,
+        }), new PagedListRenderOptions
+{
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" }
+})
+</div>

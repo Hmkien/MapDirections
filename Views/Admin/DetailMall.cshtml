@@ -1,0 +1,65 @@
+@model MapDirections.Models.Mall
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+
+<div class="container">
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.OpeningHours)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.OpeningHours)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Phone)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Phone)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Website)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Website)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Latitude)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Latitude)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Longitude)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Longitude)
+        </dd>
+    </dl>
+</div>
+<div style="margin-left: 6em;">
+    <a style="margin-right: 3em;" class="btn btn-info" asp-action="Edit" asp-route-id="@Model?.MallId">Edit</a>
+    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+</div>
+
+</div>
