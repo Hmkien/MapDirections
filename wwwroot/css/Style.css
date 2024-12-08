@@ -2,6 +2,7 @@ body, html {
     margin: 0;
     padding: 0;
     height: 100%;
+    font-family: 'Roboto', sans-serif;
 }
 #map {
     height: 100%;
@@ -20,7 +21,7 @@ body, html {
 }
 .user_area{
     position: absolute;
-    top: 15%;
+    top: 20%;
     left: 5px;
     z-index: 1000;
     display: flex;

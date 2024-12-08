@@ -1,9 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using MapDirections.Models
-@model IEnumerable<MapDirections.Models.Mall>
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
-
+@model IEnumerable<MapDirections.Models.MallViewModel>
 @{
     Layout = null;
 }
@@ -106,66 +105,79 @@
         {
             <text>
                     {
-                        name: "@location.Name",
+                        name: "@Html.Raw(location.Name)",
                     coords: [@location.Latitude, @location.Longitude],
-                    address: "@location.Address",
-                    description: "@location.Description",
-                    openingHours: "@location.OpeningHours",
-                    phone: "@location.Phone",
-                    website: "@location.Website",
-                    service: "@string.Join(", ", location.MallServices.Select(s => s.Name))"
-                                                                                                                },
+                    address: "@Html.Raw(location.Address)",
+                    description: "@Html.Raw(location.Description)",
+                    openingHours: "@Html.Raw(location.OpeningHours)",
+                    phone: "@Html.Raw(location.Phone)",
+                    website: "@Html.Raw(location.Website)",
+                    facilities: @Html.Raw(Json.Serialize(location.Facilities))
+                                                    },
             </text>
         }
-];
-
-        console.log(locations)
-
-        21.0290, 105.7917
-        // Thêm các marker địa điểm lên bản đồ
+    ];
+        console.log(locations);
         function addLocations() {
             locations.forEach(location => {
+                const facilitiesList = location.facilities.map(facility => `<li>${facility}</li>`).join('');
+
                 L.marker(location.coords)
                     .addTo(map)
                     .bindPopup(`
-                        <b>${location.name}</b><br>
-                        <strong>Địa chỉ:</strong> ${location.address}<br>
-                        <strong>Mô tả:</strong> ${location.description}<br>
-                        <strong>Thời gian mở cửa:</strong> ${location.openingHours}<br>
-                        <strong>Số điện thoại:</strong> ${location.phone}<br>
-                        <strong>Website:</strong> ${location.website}<br>
-                        <button onclick="showInfo('${location.name}', '${location.address}',  '${location.openingHours}', '${location.phone}', '${location.website})">Xem chi tiết</button>
-                    `);
+                <b>${location.name}</b><br>
+                <strong>Địa chỉ:</strong> ${location.address}<br>
+                <strong>Mô tả:</strong> ${location.description}<br>
+                <strong>Thời gian mở cửa:</strong> ${location.openingHours}<br>
+                <strong>Số điện thoại:</strong> ${location.phone}<br>
+                <strong>Website:</strong> <a href="${location.website}" target="_blank">${location.website}</a><br>
+                <strong>Cơ sở vật chất:</strong>
+                <ul>${facilitiesList}</ul>
+                <button onclick="showInfo('${location.name}', '${location.address}',  '${location.openingHours}', '${location.phone}', '${location.website}')">Xem chi tiết</button>
+            `);
             });
-
         }
+
         // Hàm hiển thị bảng thông tin trong popup
-        function showInfo(name, address, description) {
+        function showInfo(name, address, description, openingHours, phone, website, facilities) {
             const infoHTML = `
-                Thông tin chi tiết
-                        Tên Trung tâm thương mại
-                        ${name}
+        <div style="text-align: left; font-family: Arial, sans-serif; line-height: 1.5;">
+            <h3>Thông tin chi tiết</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td><strong>Tên Trung tâm thương mại:</strong></td>
+                    <td>${name}</td>
+                </tr>
+                <tr>
+                    <td><strong>Địa chỉ:</strong></td>
+                    <td>${address}</td>
+                </tr>
+                <tr>
+                    <td><strong>Mô tả:</strong></td>
+                    <td>${description}</td>
+                </tr>
+                <tr>
+                    <td><strong>Thời gian mở cửa:</strong></td>
+                    <td>${openingHours}</td>
+                </tr>
+                <tr>
+                    <td><strong>Số điện thoại liên hệ:</strong></td>
+                    <td>${phone}</td>
+                </tr>
+                <tr>
+                    <td><strong>Website chính thức:</strong></td>
+                    <td><a href="${website}" target="_blank">${website}</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Tiện ích:</strong></td>
+                    <td>${facilities}</td>
+                </tr>
+            </table>
+        </div>
+    `;
 
-                       Địa chỉ
-                        ${address}
-
-
-                        Mô tả
-                        ${description}
-
-                        Thời gian mở cửa 
-                        ${openingHours}
-
-                        Số điện thoại liên hệ
-                        ${phone}
-
-                        Đường dẫn đến trang web chính thức của TTTM
-                         ${website}
-                </table>
-            `;
-
-            alert(infoHTML); // Hiển thị bảng thông tin trong alert (có thể thay bằng modal hoặc div riêng)
-
+            // Hiển thị thông tin trong alert
+            alert(infoHTML);
         }
 
         // Gọi các hàm khởi tạo
@@ -173,8 +185,11 @@
         addLocations(); // Thêm địa điểm
 
         // Hàm tìm kiếm TTTM theo tên
-        function searchMallByName(name) {
-            return locations.find(location => location.name.toLowerCase().includes(name.toLowerCase()));
+        function searchMallByNameOrFacilities(searchTerm) {
+            return locations.filter(location =>
+                location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                location.facilities.some(facility => facility.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
         }
 
         // Sự kiện khi nhấn nút tìm kiếm
@@ -189,20 +204,25 @@
                 return;
             }
 
-            const mall = searchMallByName(searchInput);
+            const malls = searchMallByNameOrFacilities(searchInput); // Trả về mảng các TTTM
 
-            if (mall) {
+            if (malls.length > 0) {
+                // Chọn kết quả đầu tiên từ mảng
+                const mall = malls[0];
+
                 // Hiển thị thông tin TTTM
                 infoBox.style.display = 'block';
                 infoContent.innerHTML = `
-            <button id="close-button" style="float: right;margin-top:-4.5em">Đóng</button>
-            <strong>Tên:</strong> ${mall.name}<br>
-            <strong>Địa chỉ:</strong> ${mall.address}<br>
-            <strong>Mô tả:</strong> ${mall.description}<br>
-            <strong>Thời gian mở cửa:</strong> ${mall.openingHours}<br>
-            <strong>Số điện thoại liên hệ.:</strong> ${mall.phone}<br>
-            <strong>Đường dẫn đến trang web chính thức của TTTM:</strong> ${mall.website}<br>
-        `;
+    <button id="close-button" style="float: right;">Đóng</button>
+    <strong>Tên:</strong> ${mall.name}<br>
+    <strong>Địa chỉ:</strong> ${mall.address}<br>
+    <strong>Mô tả:</strong> ${mall.description}<br>
+    <strong>Thời gian mở cửa:</strong> ${mall.openingHours}<br>
+    <strong>Số điện thoại liên hệ:</strong> ${mall.phone}<br>
+    <strong>Đường dẫn đến trang web chính thức của TTTM:</strong> <a href="${mall.website}" target="_blank">${mall.website}</a><br>
+    <strong>Tiện ích:</strong> ${mall.facilities.join(', ')}<br>
+`;
+
 
                 // Di chuyển bản đồ đến vị trí TTTM
                 map.setView(mall.coords, 16);
@@ -223,7 +243,7 @@
                                 drawRoute(userCoords, mall.coords);
                             },
                             (error) => {
-                                alert('Không thể định vị vị trí hiện tại để chỉ đường.');
+                                alert('Không thể định vị vị trí hiện tại để chỉ đường. Vui lòng kiểm tra quyền truy cập vị trí của trình duyệt.');
                             }
                         );
                     } else {
@@ -231,8 +251,10 @@
                     }
                 };
 
+                // Thêm sự kiện "Đóng" cho nút đóng
                 document.getElementById('close-button').addEventListener('click', () => {
                     infoBox.style.display = 'none';
+                    navigateButton.style.display = 'none'; // Ẩn nút chỉ đường khi đóng thông tin
                 });
             } else {
                 alert('Không tìm thấy TTTM phù hợp với từ khóa tìm kiếm.');
@@ -388,19 +410,25 @@
         // Cập nhật hàm thêm marker với tính năng chỉ đường
         function addLocations() {
             locations.forEach(location => {
+                const facilitiesList = location.facilities && location.facilities.length > 0
+                    ? location.facilities.join(', ')
+                    : "Không có thông tin tiện ích.";  // Nếu không có tiện ích, hiển thị thông báo
+
                 L.marker(location.coords, { icon: mallIcon })
                     .addTo(map)
                     .bindPopup(`
-                    <b>${location.name}</b><br>
-                    <strong>Địa chỉ:</strong> ${location.address}<br>
-                    <strong>Mô tả:</strong> ${location.description}<br>
-                    <strong>Thời gian mở cửa:</strong> ${location.openingHours}<br>
-                    <strong>Số điện thoại liên hệ:</strong> ${location.phone}<br>
-                    <strong>Đường dẫn đến trang web chính thức của TTTM:</strong> ${location.website}<br>
-                    <button onclick="showInfo('${location.name}', '${location.address}', '${location.description}', '${location.openingHours}', '${location.phone}', '${location.website}', [${location.coords[0]}, ${location.coords[1]}])">Xem chi tiết và chỉ đường</button>
-                `);
+                <b>${location.name}</b><br>
+                <strong>Địa chỉ:</strong> ${location.address}<br>
+                <strong>Mô tả:</strong> ${location.description}<br>
+                <strong>Thời gian mở cửa:</strong> ${location.openingHours}<br>
+                <strong>Số điện thoại liên hệ:</strong> ${location.phone}<br>
+                <strong>Website:</strong> <a href="${location.website}" target="_blank">${location.website}</a><br>
+                <strong>Tiện ích:</strong> ${facilitiesList}<br>
+                <button onclick="showInfo('${location.name}', '${location.address}', '${location.description}', '${location.openingHours}', '${location.phone}', '${location.website}', [${location.coords[0]}, ${location.coords[1]}])">Xem chi tiết và chỉ đường</button>
+            `);
             });
         }
+
 
         // Gọi các hàm khởi tạo
         locateUser(); // Định vị người dùng và tìm TTTM gần nhất

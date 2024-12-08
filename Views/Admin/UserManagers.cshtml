@@ -1,46 +1,33 @@
-@model IEnumerable<MapDirections.Models.AppUser>
+@using Microsoft.AspNetCore.Identity;
+@using MapDirections.Models;
+@model IEnumerable<UserWithRole>
 
-@{
-    ViewData["Title"] = "Index";
-}
-<h3 class="p-4 text-center">Danh sách người dùng</h3>
-<div class="container">
-    <table class="table">
-        <thead>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tên đăng nhập</th>
+            <th>Quyền</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
             <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.UserName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Email)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.PhoneNumber)
-                </th>
-                <th></th>
+                <td>@item.User.UserName</td>
+                <td>
+                    @foreach (var role in item.Role)
+                    {
+                        <span>@role</span>
+
+                        <br />
+                    }
+                </td>
+                <td>
+                    <a asp-controller="Admin" class="btn btn-primary" asp-action="AssignRole"
+                        asp-route-UserId="@item.User.Id">Thêm Quyền</a>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UserName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Email)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.PhoneNumber)
-                    </td>
-
-                    <td>
-
-                        <a asp-action="DeleteUser" asp-route-id="@item.Id"><i class="text-danger fas fa-trash"></i></a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-</div>
+        }
+    </tbody>
+</table>

@@ -14,7 +14,7 @@ namespace MapDirections.Data
             : base(options)
         {
         }
-
+        public DbSet<AppRole> AppRole { get; set; } = default!;
         public DbSet<Mall> Mall { get; set; } = default!;
         public DbSet<MallService> MMallService { get; set; } = default!;
 

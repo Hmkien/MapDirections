@@ -1,0 +1,34 @@
+@model IEnumerable<MapDirections.Models.AppRole>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<p>
+    <a class="btn btn-primary" asp-action="CreateRole">Tạo mới</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Tên quyền
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+
+                <td>
+                    <a asp-action="EditRole" asp-route-id="@item.Id"><i class="fas fa-edit"></i></a>
+                    <a asp-action="DeleteRole" asp-route-id="@item.Id"><i class="text-danger fas fa-trash"></i></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

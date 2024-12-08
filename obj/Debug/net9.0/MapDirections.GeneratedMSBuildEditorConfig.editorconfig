@@ -188,8 +188,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Visual Studio/MapDirections/MapDirections/Views/Admin/AssignRole.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXNzaWduUm9sZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Visual Studio/MapDirections/MapDirections/Views/Admin/CreateMall.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlTWFsbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Visual Studio/MapDirections/MapDirections/Views/Admin/CreateRole.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlUm9sZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Visual Studio/MapDirections/MapDirections/Views/Admin/CreateService.cshtml]
@@ -198,6 +206,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/Visual Studio/MapDirections/MapDirections/Views/Admin/DeleteMall.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGVsZXRlTWFsbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Visual Studio/MapDirections/MapDirections/Views/Admin/DeleteRole.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGVsZXRlUm9sZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Visual Studio/MapDirections/MapDirections/Views/Admin/DeleteService.cshtml]
@@ -216,12 +228,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdE1hbGwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Visual Studio/MapDirections/MapDirections/Views/Admin/EditRole.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFJvbGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Visual Studio/MapDirections/MapDirections/Views/Admin/EditService.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFNlcnZpY2UuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Visual Studio/MapDirections/MapDirections/Views/Admin/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Visual Studio/MapDirections/MapDirections/Views/Admin/Role.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUm9sZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Visual Studio/MapDirections/MapDirections/Views/Admin/Service.cshtml]

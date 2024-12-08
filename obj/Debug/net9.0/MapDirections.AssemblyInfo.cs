@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MapDirections")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2bb3ef0ca783320adefafdb19e4ee53cd769b9c5")]
 [assembly: System.Reflection.AssemblyProductAttribute("MapDirections")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MapDirections")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

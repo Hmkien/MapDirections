@@ -425,6 +425,7 @@ D:\Visual Studio\MapDirections\MapDirections\obj\Debug\net9.0\MapDirections.pdb
 D:\Visual Studio\MapDirections\MapDirections\obj\Debug\net9.0\MapDirections.genruntimeconfig.cache
 D:\Visual Studio\MapDirections\MapDirections\obj\Debug\net9.0\ref\MapDirections.dll
 D:\Visual Studio\MapDirections\MapDirections\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.Google.dll
-D:\Visual Studio\MapDirections\MapDirections\obj\Debug\net9.0\compressed\oja950scxt-yul72v36sh.gz
 D:\Visual Studio\MapDirections\MapDirections\bin\Debug\net9.0\X.PagedList.dll
 D:\Visual Studio\MapDirections\MapDirections\bin\Debug\net9.0\X.PagedList.Mvc.Core.dll
+D:\Visual Studio\MapDirections\MapDirections\obj\Debug\net9.0\MapDirections.sourcelink.json
+D:\Visual Studio\MapDirections\MapDirections\obj\Debug\net9.0\compressed\oja950scxt-v9vlpnnxeo.gz

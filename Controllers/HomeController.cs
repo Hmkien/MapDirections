@@ -17,9 +17,27 @@ public class HomeController : Controller
     }
     public async Task<IActionResult> Index()
     {
-        var model = await _context.Mall.Include(e => e.MallServices).ToListAsync();
+        var model = await _context.Mall
+                                  .Include(e => e.MallServices)
+                                  .Select(m => new MallViewModel
+                                  {
+                                      Name = m.Name,
+                                      Latitude = m.Latitude,
+                                      Longitude = m.Longitude,
+                                      Address = m.Address,
+                                      Description = m.Description,
+                                      OpeningHours = m.OpeningHours,
+                                      Phone = m.Phone,
+                                      Website = m.Website,
+                                      Facilities = m.MallServices
+                                          .Select(s => $"{s.Name} ({s.Event})")
+                                          .ToList()
+                                  })
+                                  .ToListAsync();
+
         return View(model);
     }
+
 
 
 }

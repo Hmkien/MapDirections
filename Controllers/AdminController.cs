@@ -11,18 +11,24 @@ using Microsoft.AspNetCore.Authorization;
 using BaiThucHanh.Models.Process;
 using OfficeOpenXml;
 using X.PagedList.Extensions;
+using Microsoft.AspNetCore.Identity;
 
 namespace MapDirections.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly MapContext _context;
+        private readonly RoleManager<AppRole> _roleManager;
+        private readonly UserManager<AppUser> _userManager;
+
         private ExcelProcess _excelProcess = new ExcelProcess();
 
-        public AdminController(MapContext context)
+        public AdminController(MapContext context, RoleManager<AppRole> roleManager, UserManager<AppUser> userManager)
         {
             _context = context;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         // GET: Mall
@@ -266,7 +272,15 @@ namespace MapDirections.Controllers
         }
         public async Task<IActionResult> UserManagers()
         {
-            return View(await _context.Users.ToListAsync());
+            var users = await _userManager.Users.ToListAsync();
+            var UserWithRole = new List<UserWithRole>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                UserWithRole.Add(new UserWithRole { User = user, Role = roles.ToList() });
+            }
+
+            return View(UserWithRole);
         }
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -391,6 +405,125 @@ namespace MapDirections.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
+        public async Task<IActionResult> Role()
+        {
+            return View(await _roleManager.Roles.ToListAsync());
+        }
 
+        public IActionResult CreateRole()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateRole(string Name)
+        {
+            if (ModelState.IsValid)
+            {
+                if (!string.IsNullOrEmpty(Name))
+                {
+                    var role = new AppRole { Name = Name };
+
+                    await _roleManager.CreateAsync(role);
+                    return RedirectToAction(nameof(Role));
+                }
+            }
+            return View(Name);
+        }
+
+
+        public async Task<IActionResult> EditRole(string id)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                return NotFound();
+            }
+            return View(role);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditRole(string Id, string Name)
+        {
+            var role = await _roleManager.FindByIdAsync(Id);
+            if (role == null)
+            {
+                return NotFound();
+            }
+            role.Name = Name;
+            await _roleManager.UpdateAsync(role);
+            return RedirectToAction("Role");
+        }
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            var Role = await _roleManager.FindByIdAsync(id);
+            if (Role != null)
+            {
+                await _roleManager.DeleteAsync(Role);
+                return RedirectToAction("Role");
+            }
+            return View();
+        }
+
+
+        public async Task<IActionResult> AssignRole(string UserId)
+        {
+            var user = await _userManager.FindByIdAsync(UserId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var UserRole = await _userManager.GetRolesAsync(user);
+            var AllRole = await _roleManager.Roles.Select(r => new RoleVM { Id = r.Id, Name = r.Name }).ToListAsync();
+            var ViewModel = new AssignRoleVM
+            {
+                UserId = UserId,
+                AllRole = AllRole,
+                SelectedRole = UserRole
+            };
+            return View(ViewModel);
+        }
+        [HttpPost]
+        public async Task<IActionResult> AssignRole(AssignRoleVM model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(model.UserId);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var userRole = await _userManager.GetRolesAsync(user);
+
+                foreach (var role in model.SelectedRole)
+                {
+                    // Kiểm tra vai trò đã tồn tại trong hệ thống chưa
+                    var roleExist = await _roleManager.RoleExistsAsync(role);
+
+
+                    if (!userRole.Contains(role))
+                    {
+                        await _userManager.AddToRoleAsync(user, role);
+                    }
+                }
+
+                foreach (var role in userRole)
+                {
+                    if (!model.SelectedRole.Contains(role))
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, role);
+                    }
+                }
+
+                return RedirectToAction(nameof(UserManagers), "Admin");
+            }
+
+            return View(model);
+        }
     }
 }
