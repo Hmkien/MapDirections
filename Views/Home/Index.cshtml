@@ -39,6 +39,7 @@
 
 
     </div>
+
     <div id="info-box" style="display: none;">
         <h3>Thông tin TTTM</h3>
         <div id="info-content"></div>
@@ -113,7 +114,7 @@
                     phone: "@Html.Raw(location.Phone)",
                     website: "@Html.Raw(location.Website)",
                     facilities: @Html.Raw(Json.Serialize(location.Facilities))
-                                                    },
+                                                                    },
             </text>
         }
     ];
@@ -433,6 +434,118 @@
         // Gọi các hàm khởi tạo
         locateUser(); // Định vị người dùng và tìm TTTM gần nhất
         addLocations(); // Thêm địa điểm
+        const searchInput = document.getElementById('search-input');
+        const searchBar = document.getElementById('search-bar');
+        const suggestionBox = document.createElement('div');
+        suggestionBox.id = 'suggestion-box';
+        suggestionBox.style.position = 'absolute';
+        suggestionBox.style.background = '#fff';
+        suggestionBox.style.border = '1px solid #ddd';
+        suggestionBox.style.maxHeight = '150px';
+        suggestionBox.style.overflowY = 'auto';
+        suggestionBox.style.zIndex = '1000';
+        suggestionBox.style.width = '200px';
+        suggestionBox.style.display = 'none';
+        searchBar.appendChild(suggestionBox);
+
+        // Hiển thị gợi ý khi nhập vào ô tìm kiếm
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase().trim();
+            suggestionBox.innerHTML = '';
+            if (query) {
+                const suggestions = locations.filter(location =>
+                    location.name.toLowerCase().includes(query)
+                );
+
+                if (suggestions.length > 0) {
+                    suggestionBox.style.display = 'block';
+                    suggestions.forEach(location => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.textContent = location.name;
+                        suggestionItem.style.padding = '5px';
+                        suggestionItem.style.cursor = 'pointer';
+                        suggestionItem.addEventListener('click', () => {
+                            searchInput.value = location.name; // Điền tên trung tâm thương mại vào ô tìm kiếm
+                            suggestionBox.style.display = 'none'; // Ẩn danh sách gợi ý
+
+                            // Di chuyển và zoom đến vị trí trung tâm thương mại
+                            map.setView(location.coords, 18); // Phóng to mức zoom 18
+
+                            // Hiển thị popup với thông tin chi tiết
+                            const popupContent = `
+        <b>${location.name}</b><br>
+        <strong>Địa chỉ:</strong> ${location.address}<br>
+        <strong>Mô tả:</strong> ${location.description}<br>
+        <strong>Thời gian mở cửa:</strong> ${location.openingHours}<br>
+        <strong>Số điện thoại:</strong> ${location.phone}<br>
+        <strong>Website:</strong> <a href="${location.website}" target="_blank">${location.website}</a><br>
+    `;
+
+                            L.popup()
+                                .setLatLng(location.coords)
+                                .setContent(popupContent)
+                                .openOn(map);
+                        });
+
+                        suggestionBox.appendChild(suggestionItem);
+                    });
+                } else {
+                    suggestionBox.style.display = 'none';
+                }
+            } else {
+                suggestionBox.style.display = 'none';
+            }
+        });
+
+        // Ẩn gợi ý khi nhấp ra ngoài
+        document.addEventListener('click', (event) => {
+            if (!searchBar.contains(event.target)) {
+                suggestionBox.style.display = 'none';
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+    <script>
+        const fuse = new Fuse(locations, {
+            keys: ['name', 'address', 'description'],
+            threshold: 0.3 // Độ tương tự tìm kiếm
+        });
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            suggestionBox.innerHTML = '';
+            if (query) {
+                const results = fuse.search(query).slice(0, 5); // Giới hạn 5 gợi ý
+                if (results.length > 0) {
+                    suggestionBox.style.display = 'block';
+                    results.forEach(({ item }) => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.textContent = item.name;
+                        suggestionItem.style.padding = '5px';
+                        suggestionItem.style.cursor = 'pointer';
+                        suggestionItem.addEventListener('click', () => {
+                            searchInput.value = item.name;
+                            suggestionBox.style.display = 'none';
+                            map.setView(item.coords, 18);
+                            L.popup()
+                                .setLatLng(item.coords)
+                                .setContent(`<b>${item.name}</b><br>${item.address}`)
+                                .openOn(map);
+                        });
+                        suggestionBox.appendChild(suggestionItem);
+                    });
+                } else {
+                    suggestionBox.style.display = 'none';
+                }
+            } else {
+                suggestionBox.style.display = 'none';
+            }
+        });
+        const searchBar1 = document.getElementById('search-bar');
+        searchBar1.style.position = 'absolute';
+        searchBar1.style.top = '10px';
+        searchBar1.style.left = '10px';
+        searchBar1.style.zIndex = '9999';
     </script>
 </body>
 

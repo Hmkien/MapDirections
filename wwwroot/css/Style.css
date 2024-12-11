@@ -1,24 +1,4 @@
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Roboto', sans-serif;
-}
-#map {
-    height: 100%;
-    width: 100%;
-.info-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-.info-table th, .info-table td {
-    padding: 8px;
-    border: 1px solid #ddd;
-}
-.info-table th {
-    background-color: #f4f4f4;
-}
-}
+
 .user_area{
     position: absolute;
     top: 20%;
@@ -31,37 +11,102 @@ body, html {
 .user_area img{
     border-radius: 50%;
 }
-#search-bar {
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Đảm bảo không xuất hiện cuộn ngoài ý muốn */
+}
+
+#map {
     position: absolute;
-    top: 10px;
-    left: 320px;
-    z-index: 1000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%; /* Chiếm toàn bộ chiều cao */
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+}
+
+    /* Style cho bảng thông tin */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .info-table th, .info-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .info-table th {
+            background-color: #f4f4f4;
+        }
+
+#search-bar {
+    position: absolute; /* Đảm bảo thanh tìm kiếm nằm cố định trên bản đồ */
+    top: 10px; /* Khoảng cách từ trên xuống */
+    left: 10px; /* Khoảng cách từ trái qua */
+    background-color: #ffffff; /* Màu nền để dễ nhận biết */
+    z-index: 9999; /* Đảm bảo thanh tìm kiếm nằm trên các thành phần khác */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     display: flex;
     gap: 5px;
 }
+
 #search-input {
     width: 200px;
     padding: 5px;
-    font-size: 14px;
 }
+
 #search-button {
     padding: 5px 10px;
     background-color: #007BFF;
-    color: #fff;
+    color: white;
     border: none;
     cursor: pointer;
 }
+
 #search-button:hover {
     background-color: #0056b3;
 }
-#info-box {
+
+        #info-box {
+            position: absolute;
+            top: 50px;
+            left: 320px;
+            z-index: 1000;
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #suggestion-box {
     position: absolute;
-    top: 50px;
-    left: 320px;
-    z-index: 1000;
-    background-color: white;
+    top: 100%; /* Đặt ngay dưới thanh tìm kiếm */
+    left: 0;
+    background: #fff;
     border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 2000; /* Đảm bảo danh sách gợi ý nằm trên thanh tìm kiếm và bản đồ */
+    width: 100%; /* Độ rộng bằng với ô tìm kiếm */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#suggestion-box div {
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+#suggestion-box div:hover {
+    background-color: #f0f0f0;
+}
+
+#search-bar {
+    position: relative; /* Đặt thanh tìm kiếm làm gốc tham chiếu */
+    width: 300px; /* Hoặc kích thước cụ thể phù hợp với thiết kế */
 }
