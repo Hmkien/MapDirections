@@ -26,6 +26,8 @@
                 <td>
                     <a asp-controller="Admin" class="btn btn-primary" asp-action="AssignRole"
                         asp-route-UserId="@item.User.Id">Thêm Quyền</a>
+                    <a asp-controller="Admin" class="btn btn-danger" asp-action="DeleteUser"
+                        asp-route-UserId="@item.User.Id">Xóa </a>
                 </td>
             </tr>
         }

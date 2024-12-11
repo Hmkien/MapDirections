@@ -291,27 +291,15 @@ namespace MapDirections.Controllers
 
             var appUser = await _context.Users
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (appUser == null)
-            {
-                return NotFound();
-            }
-
-            return View(appUser);
-        }
-
-        [HttpPost, ActionName("DeleteUser")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteUserConfirmed(string id)
-        {
-            var appUser = await _context.Users.FindAsync(id);
             if (appUser != null)
             {
                 _context.Users.Remove(appUser);
             }
-
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(UserManagers));
+            return RedirectToAction("UserManager");
         }
+
+
 
         private bool AppUserExists(string id)
         {
